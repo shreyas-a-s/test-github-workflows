@@ -24,12 +24,14 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
-      # Runs a single command using the runners shell
-      - name: Run multi line commands
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Update test.txt
+        shell: bash
         run: |
-          echo Hello, world! >> test.txt
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
-          git commit -am "Update test.txt"
-          git push
+          echo "New sentence $(date)" >> test.txt
+        continue-on-error: false # Directly fail the job on error, removing the need for a separate check
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update test.txt
+        if: success()
